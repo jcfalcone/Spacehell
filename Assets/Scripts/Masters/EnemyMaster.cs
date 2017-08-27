@@ -18,10 +18,21 @@ public class EnemyMaster : MonoBehaviour
     int currWave = 0;
 
     [SerializeField]
+    GameObject[] itemPrefab;
+
+    [SerializeField]
+    int[] itemPerc;
+
+    [SerializeField]
+    [Range(0f, 20f)]
+    int itemAfterEnemys;
+
+    [SerializeField]
     EnemyWaveRule[] levelRules;
 
     int enemyTotal = 0;
     int enemyDead = 0;
+    int enemyItemCount = 0;
 
     List<EnemyWaveRule> nextWaveRules;
 	// Use this for initialization
@@ -168,10 +179,37 @@ public class EnemyMaster : MonoBehaviour
                     else
                     {
                         this.enemyTotal++;
+
+                        if (this.enemyItemCount > this.itemAfterEnemys)
+                        {
+                            int itemPerc = Random.Range(0, 1000) % 100;
+                            GameObject item = null;
+
+                            for (int countItem = 0; countItem < this.itemPerc.Length; countItem++)
+                            {
+                                if (this.itemPerc[countItem] <= itemPerc)
+                                {
+                                    item = this.itemPrefab[countItem];
+                                    break;
+                                }
+                            }
+
+                            this.enemyItemCount = 0;
+                            enemy.GetComponentInChildren<EnemyTemplate>().SetItem(item);
+                        }
                     }
+
+                    this.enemyItemCount++;
                 }
 
-                yield return null;
+                if (this.nextWaveRules[count].delay != 0)
+                {
+                    yield return new WaitForSeconds(this.nextWaveRules[count].delay);
+                }
+                else
+                {
+                    yield return null;
+                }
 
             }
         }

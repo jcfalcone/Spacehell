@@ -245,6 +245,7 @@ MonoBehaviour:
     type: 2}
   flashColor: {r: 1, g: 0, b: 0, a: 0}
   flashTimes: 3
+  unitScore: 90
   bullet: {fileID: 198875129753673490}
   enemyRenders:
   - {fileID: 23030741685732626}

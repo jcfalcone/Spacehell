@@ -17,6 +17,8 @@ public class ControlMaster : MonoBehaviour
     public bool gameStarted = false;
     public bool gamePaused  = false;
 
+    int playerScore = 0;
+
 	// Use this for initialization
 	void Start () 
     {
@@ -53,5 +55,11 @@ public class ControlMaster : MonoBehaviour
     {
         Debug.Break();
         Application.Quit();
+    }
+
+    public void addScore(int score)
+    {
+        this.playerScore += score;
+        UIMaster.instance.updateScore(this.playerScore);
     }
 }

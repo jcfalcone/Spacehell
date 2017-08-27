@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyLine : EnemyTemplate 
+public class EnemyFollow : EnemyTemplate 
 {
     Vector3 nextMove;
 
@@ -14,6 +14,8 @@ public class EnemyLine : EnemyTemplate
     [SerializeField]
     Vector3 endPos;
 
+    Transform player;
+
     bool leaveLevel = false;
 
 	// Use this for initialization
@@ -22,12 +24,21 @@ public class EnemyLine : EnemyTemplate
 
         this.destinePos = transform.parent.position;
 
+        this.destinePos.x -= 100;
+
         this.endPos = destinePos;
 
         this.endPos.x -= 80;
-        this.endPos.z  = transform.position.z;
+        this.endPos.z  = transform.parent.position.z;
 
         base.Start();
+
+        GameObject tempPlayer = GameObject.FindGameObjectWithTag("Player");
+
+        if(tempPlayer != null)
+        {
+            this.player = tempPlayer.transform;
+        }
 	}
 	
 	// Update is called once per frame
@@ -40,6 +51,10 @@ public class EnemyLine : EnemyTemplate
         else if (this.leaveLevel)
         {
             this.leaveMovement();
+        }
+        else
+        {
+            this.bullet.transform.LookAt(player);
         }
     }
 

@@ -5,6 +5,10 @@ using UnityEngine;
 public abstract class EnemyTemplate : CharacterTemplate 
 {
     [SerializeField]
+    [Range(0f, 1000f)]
+    int unitScore;
+
+    [SerializeField]
     protected ParticleSystem bullet;
 
     [SerializeField]
@@ -13,11 +17,16 @@ public abstract class EnemyTemplate : CharacterTemplate
     [SerializeField]
     protected Vector3 destinePos;
 
+    [SerializeField]
+    GameObject itemEffect;
+
     protected bool initMove = true;
 
     protected Vector3 startPos;
     protected float startDistance;
     protected float startTime = 0;
+
+    GameObject item;
 
 	// Use this for initialization
     virtual protected void Start () 
@@ -39,6 +48,7 @@ public abstract class EnemyTemplate : CharacterTemplate
             if (!this.startFlash)
             {
                 this.ApplyDamage(1); 
+                ControlMaster.instance.addScore(this.unitScore);
                 this.flashCount = this.flashTimes;
             }
 
@@ -87,6 +97,20 @@ public abstract class EnemyTemplate : CharacterTemplate
         base.Die();
 
         EnemyMaster.instance.addDeadEnemy();
+
+        if (this.item != null)
+        {
+            Instantiate(this.item, transform.position, Quaternion.identity);
+        }
+    }
+
+    public void SetItem(GameObject item)
+    {
+        if (item != null)
+        {
+            this.item = item;
+            this.itemEffect.SetActive(true);
+        }
     }
 
     abstract protected void initialMovement();
