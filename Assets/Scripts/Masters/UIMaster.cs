@@ -22,6 +22,9 @@ public class UIMaster : MonoBehaviour
     Text scoreTxt;
 
     [SerializeField]
+    GameObject pauseScreenBack;
+
+    [SerializeField]
     GameObject pauseScreenObj;
 
 	// Use this for initialization
@@ -50,6 +53,7 @@ public class UIMaster : MonoBehaviour
     public void pauseScreen(bool enable)
     {
         this.pauseScreenObj.SetActive(enable);
+        this.pauseScreenBack.SetActive(enable);
     }
 
     public void updateScore(int currScore)

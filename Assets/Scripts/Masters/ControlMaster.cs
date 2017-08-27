@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ControlMaster : MonoBehaviour 
 {
@@ -55,6 +56,12 @@ public class ControlMaster : MonoBehaviour
     {
         Debug.Break();
         Application.Quit();
+    }
+
+    public void retryLevel()
+    {
+        this.pause();
+        SceneManager.LoadScene("Level1");
     }
 
     public void addScore(int score)
