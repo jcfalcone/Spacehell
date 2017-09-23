@@ -54,6 +54,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4661379971278818}
+  - component: {fileID: 114645105237192274}
   m_Layer: 0
   m_Name: FighterMedium_Blue
   m_TagString: Untagged
@@ -71,6 +72,7 @@ GameObject:
   - component: {fileID: 4278867468881860}
   - component: {fileID: 114154478008473376}
   - component: {fileID: 65870677296928904}
+  - component: {fileID: 54267302397850920}
   m_Layer: 11
   m_Name: FighterMedium_Blue
   m_TagString: Enemy
@@ -273,6 +275,21 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1754364484513478}
   m_Mesh: {fileID: 4300000, guid: d5f02142fd614bc429559c3d9c05482c, type: 3}
+--- !u!54 &54267302397850920
+Rigidbody:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1430087223473086}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 0
 --- !u!65 &65870677296928904
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -388,10 +405,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxLife: 4
-  deathEffect: {fileID: 1510093102849428, guid: bff66570531cf477cbc486dc4a272ce2,
+  deathEffect: {fileID: 1510093102849428, guid: 6b720892958634252be3f318205dcb71,
     type: 2}
   flashColor: {r: 1, g: 0.54509807, b: 0.54509807, a: 0}
-  flashTimes: 3
+  flashTimes: 2
   unitScore: 10
   bullet: {fileID: 198211026835492670}
   enemyRenders:
@@ -413,6 +430,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 99
   reverse: 0
+--- !u!114 &114645105237192274
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1327588456917286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c03cc5e501484926bbd4a9e3df1c8ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  units:
+  - {fileID: 114154478008473376}
 --- !u!122 &122061274951876010
 Halo:
   m_ObjectHideFlags: 1

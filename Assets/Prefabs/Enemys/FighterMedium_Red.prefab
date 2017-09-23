@@ -71,6 +71,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4329734163838858}
+  - component: {fileID: 114201841919882946}
   m_Layer: 0
   m_Name: FighterMedium_Red
   m_TagString: Untagged
@@ -287,7 +288,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!65 &65752333149720708
 BoxCollider:
@@ -407,7 +408,7 @@ MonoBehaviour:
   deathEffect: {fileID: 1510093102849428, guid: bff66570531cf477cbc486dc4a272ce2,
     type: 2}
   flashColor: {r: 1, g: 0.54509807, b: 0.54509807, a: 0}
-  flashTimes: 3
+  flashTimes: 2
   unitScore: 10
   bullet: {fileID: 198967035205497630}
   enemyRenders:
@@ -416,6 +417,19 @@ MonoBehaviour:
   itemEffect: {fileID: 1475537150645996}
   lifeTime: 10
   endPos: {x: 0, y: 0, z: 0}
+--- !u!114 &114201841919882946
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1761506365670294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c03cc5e501484926bbd4a9e3df1c8ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  units:
+  - {fileID: 114075330233336760}
 --- !u!114 &114223241456809332
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -14,8 +14,15 @@ public class Player : CharacterTemplate
     [Range(0f, 1000f)]
     float speed = 5;
 
+    float curSpeedX;
+    float curSpeedY;
+
     [SerializeField]
     Vector3 verticalAngle = new Vector3(0f, 0f, 50f);
+
+
+    [SerializeField]
+    float maxForceParticle;
 
     [Header("Model")]
     [SerializeField]
@@ -23,10 +30,31 @@ public class Player : CharacterTemplate
 
     Renderer spaceShipRender;
 
+    [Header("Sound")]
+    [SerializeField]
+    AudioSource playerAudioSource;
+
+    [SerializeField]
+    AudioClip superBulletSFX;
+
+    [SerializeField]
+    AudioSource shootingAudioSource;
+
+    [SerializeField]
+    AudioSource charingAudioSource;
 
     [Header("Bullets")]
     [SerializeField]
     PlayerBullet[] bullets;
+
+
+    [SerializeField]
+    float superBulletWaitTime;
+
+    float superBulletTotalTime;
+
+    [SerializeField]
+    PlayerSuperBulletList[] superBullets;
 
     [Header("Powerup")]
     [SerializeField]
@@ -48,8 +76,14 @@ public class Player : CharacterTemplate
     int currBullet = 0;
 
     Vector3 startPos;
+    public Vector3 addVelocity;
     float startDistance;
     float startTime = 0;
+
+    bool useSuperBullet = false;
+
+    Vector3 vector3One = Vector3.one;
+
 
 	// Use this for initialization
 	void Start () 
@@ -66,6 +100,11 @@ public class Player : CharacterTemplate
 
         transform.position = playerPos;
         this.startDistance = Vector3.Distance(playerPos, this.startPos);
+
+        this.curSpeedX = this.speed;
+        this.curSpeedY = this.speed;
+
+        this.addVelocity = vectorZero;
 
         UIMaster.instance.SetLifeUI(this.currentLife);
 	}
@@ -90,6 +129,7 @@ public class Player : CharacterTemplate
 
             if (pathJorney > 0.2f)
             {
+                UIMaster.instance.ShowTutorial();
                 ControlMaster.instance.startGame();
             }
 
@@ -99,14 +139,17 @@ public class Player : CharacterTemplate
             
         }
 
-        if (Input.GetKeyUp(KeyCode.Escape))
+        if (!ControlMaster.instance.gamePaused)
         {
-            ControlMaster.instance.pause();
-        }
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                ControlMaster.instance.pause();
+            }
 
-        this.checkFire();
-        this.checkBullets();
-        this.movePowerUp();
+            this.checkFire();
+            this.checkBullets();
+            this.movePowerUp();
+        }
     }
 	
 	// Update is called once per frame
@@ -117,11 +160,44 @@ public class Player : CharacterTemplate
             return;
         }
 
+        /*if (!ControlMaster.instance.gameStarted)
+        {
+            return;
+        }*/
+
         float btnVertical   = -Input.GetAxis("Vertical");
         float btnHorizontal = Input.GetAxis("Horizontal");
 
         Vector3 velocity = vectorZero;
 
+        //Debug.Log(transform.position.y + " ( " + Mathf.Abs((transform.position.y + 18f) / 5f) + " = "+Mathf.Lerp(this.curSpeedY, 0, Mathf.Abs((transform.position.y + 18f) / 4f))+" ) - ( " + Mathf.Abs((transform.position.y - 23f) / 2f) + " )");
+
+
+        if (transform.position.y < -18f && btnVertical > 0)
+        {
+            this.curSpeedY = Mathf.Lerp(this.curSpeedY, 0, Time.deltaTime * 2);
+        }
+        else if (transform.position.y > 21f && btnVertical < 0)
+        {
+            this.curSpeedY = Mathf.Lerp(this.curSpeedY, 0, Time.deltaTime * 2);
+        }
+        else
+        {
+            this.curSpeedY = Mathf.Lerp(this.curSpeedY, this.speed, Time.deltaTime);
+        }
+
+        if (transform.position.x < -38f && btnHorizontal < 0)
+        {
+            this.curSpeedX = Mathf.Lerp(this.curSpeedX, 0, Time.deltaTime * 2);
+        }
+        else if (transform.position.x > 39.5f &&  btnHorizontal > 0)
+        {
+            this.curSpeedX = Mathf.Lerp(this.curSpeedX, 0, Time.deltaTime * 2);
+        }
+        else
+        {
+            this.curSpeedX = this.speed;
+        }
 
         if ((transform.position.y < -23f && btnVertical > 0) ||
             (transform.position.y > 25f && btnVertical < 0))
@@ -134,6 +210,17 @@ public class Player : CharacterTemplate
         {
             btnHorizontal = 0;
         }
+
+        if ((transform.position.y < -23f) || (transform.position.y > 25f))
+        {
+            this.addVelocity.y = 0;
+        }
+
+        if ((transform.position.x < -44f) || (transform.position.x > 42.5f))
+        {
+            this.addVelocity.x = 0;
+        }
+
         Quaternion targetRotation = this.startRotation;
 
         if(btnVertical != 0)
@@ -143,7 +230,7 @@ public class Player : CharacterTemplate
             targetRotation = Quaternion.Euler(this.verticalAngle * btnVertical);
         }
 
-        this.spaceShip.localRotation = Quaternion.Lerp (this.spaceShip.localRotation, targetRotation, Time.deltaTime * speed);
+        this.spaceShip.localRotation = Quaternion.Lerp (this.spaceShip.localRotation, targetRotation, Time.fixedDeltaTime * speed);
 
         if (this.powerUpOn)
         {
@@ -153,10 +240,13 @@ public class Player : CharacterTemplate
             }
         }
 
-        velocity  = transform.right * btnVertical * speed * Time.fixedDeltaTime;
-        velocity += transform.forward * btnHorizontal * speed * Time.fixedDeltaTime;
+        velocity = transform.right * btnVertical * this.curSpeedY * Time.fixedDeltaTime;
+        velocity += transform.forward * btnHorizontal * this.curSpeedX * Time.fixedDeltaTime;
+
+        velocity += this.addVelocity;
 
         this.rb.velocity = velocity;
+        this.addVelocity = Vector3.Lerp(this.addVelocity, vectorZero, Time.fixedDeltaTime * 4f);
 	}
 
     override protected void OnParticleCollision (GameObject obj) 
@@ -164,17 +254,27 @@ public class Player : CharacterTemplate
         //gameobject  is the emitter
         //obj is the object hitted (colided) with particle
         //but how to acces that exact particle what caused collision (and destroy it)  
-        Debug.Log("Hit",obj);
 
-        bool applyDamage = obj.transform.CompareTag("Enemy");
+        bool applyDamage = obj.transform.CompareTag("Enemy") || obj.transform.CompareTag("EnemyBoss");
 
         if (obj.transform.parent != null)
         {
-            applyDamage = obj.transform.parent.CompareTag("Enemy");
+            applyDamage = obj.transform.parent.CompareTag("Enemy") || obj.transform.CompareTag("EnemyBoss");
         }
 
         if (applyDamage)
         {
+            ParticleSystem particleSystem = obj.GetComponent<ParticleSystem>();
+            ParticleCollisionEvent[] collisions = new ParticleCollisionEvent[particleSystem.GetSafeCollisionEventSize()];
+            int numberOfCollisions = particleSystem.GetCollisionEvents(this.gameObject, collisions);
+
+            for (int count = 0; count < numberOfCollisions; count++)
+            {
+                Vector3 force = collisions[count].velocity * 1;
+                this.addVelocity += force;
+                this.addVelocity = Vector3.ClampMagnitude(this.addVelocity, maxForceParticle);
+                //this.rb.AddForce(force);
+            }
 
             if (!this.startFlash)
             {
@@ -193,9 +293,43 @@ public class Player : CharacterTemplate
 
     override protected void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.CompareTag("Enemy"))
+        if (collision.transform.CompareTag("Enemy") || collision.transform.CompareTag("EnemyBoss"))
         {
+            Vector3 dir = collision.contacts[0].point - transform.position;
+            // We then get the opposite (-Vector3) and normalize it
+            dir = -dir.normalized;
+
+            dir.z = 0;
+
+            this.addVelocity += dir * 50f;
             this.ApplyDamage(1);
+            UIMaster.instance.SetLifeUI(this.currentLife);
+            this.flashCount = this.flashTimes;
+
+            if (!this.startFlash && this.flashCount > 0)
+            {
+                this.startFlash = true;
+                StartCoroutine(flashChar());
+            }
+        }
+    }
+
+    void OnTriggerEnter(Collider other) 
+    {
+        if (other.transform.CompareTag("Enemy"))
+        {
+            if (!this.startFlash)
+            {
+                this.ApplyDamage(1);
+                UIMaster.instance.SetLifeUI(this.currentLife);
+                this.flashCount = this.flashTimes;
+            }
+
+            if (!this.startFlash && this.flashCount > 0)
+            {
+                this.startFlash = true;
+                StartCoroutine(flashChar());
+            }
         }
     }
 
@@ -215,8 +349,68 @@ public class Player : CharacterTemplate
     }
     void checkFire()
     {
-        if (Input.GetButton("Fire1"))
+        if (!Input.GetKey(KeyCode.LeftShift) && this.superBullets[this.currBullet].bulletCharging.isPlaying)
         {
+            this.superBullets[this.currBullet].bulletCharging.Stop();
+
+            if (this.charingAudioSource.isPlaying)
+            {
+                this.charingAudioSource.Stop();
+            }
+
+            if (this.useSuperBullet)
+            {
+                this.playerAudioSource.PlayOneShot(this.superBulletSFX);
+
+                GameObject tempBullet = Instantiate(this.superBullets[this.currBullet].prefab, transform.position + (transform.forward * 5), transform.rotation);
+
+                Collider[] enemys = Physics.OverlapSphere(transform.position, 100f, this.superBullets[this.currBullet].enemyLayer);
+
+                if (enemys.Length > 0)
+                {
+                    tempBullet.GetComponent<PlayerSuperBullet>().setTarget(enemys[Random.Range(0, 1000) % enemys.Length].transform);
+                }
+
+                this.useSuperBullet = false;
+                this.superBulletTotalTime = 0;
+            }
+        }
+
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            if (!this.superBullets[this.currBullet].bulletCharging.isPlaying)
+            {
+                this.superBullets[this.currBullet].bulletCharging.Play(true);
+            }
+
+            if (this.superBulletTotalTime > this.superBulletWaitTime)
+            {
+                this.useSuperBullet = true;
+            }
+
+            this.superBullets[this.currBullet].bulletCharging.transform.localScale = vector3One * Mathf.Clamp01(this.superBulletTotalTime / this.superBulletWaitTime);
+
+            this.superBulletTotalTime += Time.deltaTime;
+
+            if (!this.charingAudioSource.isPlaying)
+            {
+                this.charingAudioSource.Play();
+            }
+
+            if (this.shootingAudioSource.isPlaying)
+            {
+                this.shootingAudioSource.Stop();
+            }
+
+            this.stopBullets();
+        }
+        else if (Input.GetButton("Fire1"))
+        {
+            if (!this.shootingAudioSource.isPlaying)
+            {
+                this.shootingAudioSource.Play();
+            }
+
             if (!this.bullets[this.currBullet].bullet.isEmitting)
             {
                 this.bullets[this.currBullet].bullet.Play(true);
@@ -235,6 +429,11 @@ public class Player : CharacterTemplate
         }
         else
         {
+            if (this.shootingAudioSource.isPlaying)
+            {
+                this.shootingAudioSource.Stop();
+            }
+
             this.stopBullets();
         }
     }
@@ -250,6 +449,13 @@ public class Player : CharacterTemplate
             if (this.currBullet != 0)
             {
                 this.stopBullets();
+                this.superBulletTotalTime = 0;
+                this.useSuperBullet = false;
+
+                for (int count = 0; count < this.superBullets.Length; count++)
+                {
+                    this.superBullets[count].bulletCharging.Stop();
+                }
             }
 
             this.currBullet = 0;
@@ -262,6 +468,13 @@ public class Player : CharacterTemplate
             if (this.currBullet != 1)
             {
                 this.stopBullets();
+                this.superBulletTotalTime = 0;
+                this.useSuperBullet = false;
+
+                for (int count = 0; count < this.superBullets.Length; count++)
+                {
+                    this.superBullets[count].bulletCharging.Stop();
+                }
             }
 
             this.currBullet = 1;
@@ -318,5 +531,30 @@ public class Player : CharacterTemplate
                 this.powerUpControl[count].UpdateMovement();
             }
         }
+    }
+
+    override public void Die()
+    {
+        base.Die();
+        UIMaster.instance.ShowFinal();
+    }
+
+    override public void ApplyDamage(int damage)
+    {
+        if (this.powerUpOn)
+        {
+            this.powerUpOn = false;
+
+            for (int count = 0; count < this.powerUpModel.Length; count++)
+            {
+                this.powerUpModel[count].SetActive(false);
+            }
+
+            StartCoroutine(coolDownDamage());
+
+            return;
+        }
+
+        base.ApplyDamage(damage);
     }
 }

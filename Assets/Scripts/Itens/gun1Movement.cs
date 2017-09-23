@@ -20,7 +20,7 @@ public class gun1Movement : MonoBehaviour
         Vector3 playerPos = this.finalPos;
         playerPos.x -= 30;
 
-        Debug.Log(playerPos);
+//        Debug.Log(playerPos);
 
         transform.localPosition = playerPos;
         this.startDistance = Vector3.Distance(playerPos, this.startPos);

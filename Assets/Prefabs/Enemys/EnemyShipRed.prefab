@@ -19,6 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4102998679132320}
+  - component: {fileID: 114104415735423506}
   m_Layer: 0
   m_Name: EnemyShipRed
   m_TagString: Untagged
@@ -258,7 +259,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!65 &65769687387448150
 BoxCollider:
@@ -363,6 +364,19 @@ TrailRenderer:
     generateLightingData: 0
   m_MinVertexDistance: 0.1
   m_Autodestruct: 0
+--- !u!114 &114104415735423506
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1021815054683028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c03cc5e501484926bbd4a9e3df1c8ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  units:
+  - {fileID: 114962993446818496}
 --- !u!114 &114249659365073968
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -388,10 +402,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxLife: 4
-  deathEffect: {fileID: 1510093102849428, guid: 6b720892958634252be3f318205dcb71,
+  deathEffect: {fileID: 1510093102849428, guid: bff66570531cf477cbc486dc4a272ce2,
     type: 2}
   flashColor: {r: 1, g: 0.5441177, b: 0.5441177, a: 0}
-  flashTimes: 3
+  flashTimes: 2
   unitScore: 10
   bullet: {fileID: 198045854139026160}
   enemyRenders:

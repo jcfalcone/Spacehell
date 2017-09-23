@@ -102,10 +102,14 @@ public class EnemyFollow : EnemyTemplate
 
         float pathJorney = distCover / this.startDistance;
 
-        if (pathJorney > 0.2f)
+
+        if (pathJorney > 0.01f && pathJorney < 0.02f)
+        {
+            EnemyMaster.instance.addEnemyWave(this.wave);
+        }
+        else if (pathJorney > 0.2f)
         {
             this.startTime = 0;
-            EnemyMaster.instance.addDeadEnemy();
             Destroy(transform.parent.gameObject);
         }
 

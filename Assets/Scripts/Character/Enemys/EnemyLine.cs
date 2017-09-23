@@ -19,7 +19,6 @@ public class EnemyLine : EnemyTemplate
 	// Use this for initialization
 	override protected void Start () 
     {
-
         this.destinePos = transform.parent.position;
 
         this.endPos = destinePos;
@@ -87,10 +86,19 @@ public class EnemyLine : EnemyTemplate
 
         float pathJorney = distCover / this.startDistance;
 
-        if (pathJorney > 0.2f)
+//        Debug.Log(pathJorney);
+
+        if (pathJorney > 0.01f && pathJorney < 0.05f)
+        {
+            if (!this.enemyMasterDieAdded)
+            {
+                EnemyMaster.instance.addEnemyWave(this.wave);
+                this.enemyMasterDieAdded = true;
+            }
+        }
+        else if (pathJorney > 0.2f)
         {
             this.startTime = 0;
-            EnemyMaster.instance.addDeadEnemy();
             Destroy(transform.parent.gameObject);
         }
 

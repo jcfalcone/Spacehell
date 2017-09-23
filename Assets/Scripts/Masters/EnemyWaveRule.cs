@@ -6,6 +6,9 @@ using UnityEngine;
 [System.Serializable]
 public class EnemyWaveRule 
 {
+    public int          waveId;
+
+    public int          afterWaveId = -1;
     public int          afterWaveRule;
     public int          waveCounts;
     public int          priority;

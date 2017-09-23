@@ -25,6 +25,9 @@ public abstract class EnemyTemplate : CharacterTemplate
     protected Vector3 startPos;
     protected float startDistance;
     protected float startTime = 0;
+    protected bool enemyMasterDieAdded = false;
+
+    protected int wave;
 
     GameObject item;
 
@@ -45,10 +48,11 @@ public abstract class EnemyTemplate : CharacterTemplate
     {   
         if (obj.transform.parent.CompareTag("Player"))
         {
+            ControlMaster.instance.addScore(this.unitScore);
+
             if (!this.startFlash)
             {
                 this.ApplyDamage(1); 
-                ControlMaster.instance.addScore(this.unitScore);
                 this.flashCount = this.flashTimes;
             }
 
@@ -66,6 +70,22 @@ public abstract class EnemyTemplate : CharacterTemplate
         if (collision.transform.CompareTag("Player"))
         {
             this.Die();
+        }
+        else if (collision.transform.CompareTag("Supper Bullet"))
+        {
+            ControlMaster.instance.addScore(this.unitScore * 2);
+
+            if (!this.startFlash)
+            {
+                this.ApplyDamage(2); 
+                this.flashCount = this.flashTimes;
+            }
+
+            if (!this.startFlash && this.flashCount > 0)
+            {
+                this.startFlash = true;
+                StartCoroutine(flashChar());
+            }
         }
     }
 
@@ -96,7 +116,11 @@ public abstract class EnemyTemplate : CharacterTemplate
     {
         base.Die();
 
-        EnemyMaster.instance.addDeadEnemy();
+        if (!this.enemyMasterDieAdded)
+        {
+            EnemyMaster.instance.addEnemyWave(this.wave);
+            this.enemyMasterDieAdded = true;
+        }
 
         if (this.item != null)
         {
@@ -111,6 +135,11 @@ public abstract class EnemyTemplate : CharacterTemplate
             this.item = item;
             this.itemEffect.SetActive(true);
         }
+    }
+
+    public void SetWave(int masterWave)
+    {
+        this.wave = masterWave;
     }
 
     abstract protected void initialMovement();

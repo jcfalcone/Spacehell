@@ -10,7 +10,7 @@ public abstract class CharacterTemplate : MonoBehaviour
     int maxLife;
 
     [SerializeField]
-    GameObject deathEffect;
+    protected GameObject deathEffect;
 
     [Header("Effects")]
     [SerializeField]
@@ -26,7 +26,19 @@ public abstract class CharacterTemplate : MonoBehaviour
 
     protected Color originalColor;
 
-    protected int currentLife;
+    protected int m_currentLife;
+
+    public int currentLife
+    {
+        get
+        {
+            return this.m_currentLife;
+        }
+        set
+        {
+            this.m_currentLife = value;
+        }
+    }
 
 	// Use this for initialization
 	virtual protected void Start () 
@@ -55,14 +67,13 @@ public abstract class CharacterTemplate : MonoBehaviour
     }
 
 
-    public void ApplyDamage(int damage)
+    public virtual void ApplyDamage(int damage)
     {
         if (this.takeDamage)
         {
-
-            Debug.Log("Damage1 - "+this.currentLife, gameObject);
+            //Debug.Log("Damage1 - "+this.currentLife, gameObject);
             this.currentLife -= damage;
-            Debug.Log("Damage2 - "+this.currentLife, gameObject);
+            //Debug.Log("Damage2 - "+this.currentLife, gameObject);
 
             if (this.currentLife <= 0)
             {

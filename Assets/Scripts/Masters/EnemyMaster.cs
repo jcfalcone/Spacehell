@@ -30,9 +30,17 @@ public class EnemyMaster : MonoBehaviour
     [SerializeField]
     EnemyWaveRule[] levelRules;
 
+    [SerializeField]
+    EnemyBossRule[] levelBossRules;
+
     int enemyTotal = 0;
     int enemyDead = 0;
     int enemyItemCount = 0;
+
+    int currBoss = -1;
+    EnemyBossRule.bossStatus currBossStatus;
+
+    int lastWaveId = 0;
 
     List<EnemyWaveRule> nextWaveRules;
 	// Use this for initialization
@@ -50,7 +58,17 @@ public class EnemyMaster : MonoBehaviour
             //assign GameManager to variable "_instance"
             instance = this;
         }   
+
+        for (int count = 0; count < this.levelRules.Length; count++)
+        {
+            this.levelRules[count].waveId = count;
+        }
 	}
+
+    public int CurrWave()
+    {
+        return this.currWave;
+    }
 
     public IEnumerator checkNextWaveRulesCorr()
     {
@@ -64,8 +82,13 @@ public class EnemyMaster : MonoBehaviour
                 this.nextWaveRules.Clear();
                 this.nextWaveRules.Add(this.levelRules[count]);
             }
+            else if (this.levelRules[count].afterWaveId != -1 && this.lastWaveId == this.levelRules[count].afterWaveId)
+            {
+                this.nextWaveRules.Clear();
+                this.nextWaveRules.Add(this.levelRules[count]);
+            }
             //Add to the next wave if the wave counts matchs
-            else if (this.levelRules[count].waveCounts != 0 && this.currWave % this.levelRules[count].waveCounts == 0)
+            else if (this.levelRules[count].waveCounts != 0 && this.currWave % this.levelRules[count].waveCounts == 0 && this.currWave != 0)
             {
                 if(this.nextWaveRules[0].priority < this.levelRules[count].priority)
                 {
@@ -81,7 +104,10 @@ public class EnemyMaster : MonoBehaviour
             else if (this.levelRules[count].afterWaveRule == -1 &&
                     this.levelRules[count].waveCounts == 0)
             {
-                this.nextWaveRules.Add(this.levelRules[count]);
+                if (this.nextWaveRules.Count <= 0 || this.nextWaveRules[0].priority <= this.levelRules[count].priority)
+                {
+                    this.nextWaveRules.Add(this.levelRules[count]);
+                }
             }
 
             yield return null;
@@ -143,14 +169,19 @@ public class EnemyMaster : MonoBehaviour
         }
     }
 
-    public void addDeadEnemy()
+    public void addEnemyWave(int enemyWave)
     {
-        this.enemyDead++;
+        Debug.Log(this.currWave + " - " + enemyWave);
+        if (this.currWave == enemyWave)
+        {
+            this.enemyDead++;
+        }
 
         if (this.enemyDead >= this.enemyTotal)
         {
             this.enemyDead = 0;
             this.currWave++;
+            Debug.Log("Curr Wave - "+this.currWave);
             StartCoroutine(this.startNextWave());
         }
 
@@ -160,15 +191,57 @@ public class EnemyMaster : MonoBehaviour
     {
         this.enemyTotal = 0;
 
+        for (int count = 0; count < this.levelBossRules.Length; count++)
+        {
+            if (this.currWave == this.levelBossRules[count].alertAtWave)
+            {
+                this.levelBossRules[count].bossGameObject.SetActive(true);
+                this.levelBossRules[count].bossGameObject.transform.position = this.levelBossRules[count].startPos;
+                this.currBoss = count;
+            }
+        }
+
+        if (this.currBoss != -1)
+        {
+            if (!this.levelBossRules[this.currBoss].keepWave)
+            {
+                yield break;
+            }
+            else
+            {
+                
+                if (this.currBossStatus != EnemyBossRule.bossStatus.None && this.levelBossRules[this.currBoss].stopAfterSignal)
+                {
+                    yield break;
+                }
+            }
+        }
+
         for (int count = 0; count < this.nextWaveRules.Count; count++)
         {
+            this.lastWaveId = this.nextWaveRules[count].waveId;
+
+            Debug.Log("WaveId = "+this.nextWaveRules[count].waveId);
+
             for (int countEnemy = 0; countEnemy < this.nextWaveRules[count].prefabs.Length; countEnemy++)
             {
                 Vector3 startPos = this.nextWaveRules[count].position[countEnemy];
 
                 for (int countAmount = 0; countAmount < this.nextWaveRules[count].amount[countEnemy]; countAmount++)
                 {
-                    GameObject enemy = Instantiate(this.nextWaveRules[count].prefabs[countEnemy], startPos, Quaternion.identity);
+                     GameObject enemy = Instantiate(this.nextWaveRules[count].prefabs[countEnemy]);
+                    enemy.transform.position = startPos;
+                    EnemyGroup groupControl = enemy.GetComponent<EnemyGroup>();
+                    EnemyTemplate enemyControl = enemy.GetComponent<EnemyTemplate>();
+
+                    if (groupControl)
+                    {
+                        groupControl.SetWave(this.currWave);
+                    }
+                    else if(enemyControl)
+                    {
+                        enemyControl.SetWave(this.currWave);
+                    }
 
                     startPos += this.nextWaveRules[count].distance;
 
@@ -195,11 +268,28 @@ public class EnemyMaster : MonoBehaviour
                             }
 
                             this.enemyItemCount = 0;
-                            enemy.GetComponentInChildren<EnemyTemplate>().SetItem(item);
+
+                            if (groupControl)
+                            {
+                                groupControl.SetItem(item);
+                            }
+                            else if(enemyControl)
+                            {
+                                enemyControl.SetItem(item);
+                            }
                         }
                     }
 
                     this.enemyItemCount++;
+
+                    if (this.nextWaveRules[count].delay != 0)
+                    {
+                        yield return new WaitForSeconds(this.nextWaveRules[count].delay);
+                    }
+                    else
+                    {
+                        yield return null;
+                    }
                 }
 
                 if (this.nextWaveRules[count].delay != 0)
@@ -215,5 +305,13 @@ public class EnemyMaster : MonoBehaviour
         }
 
         StartCoroutine(checkNextWaveRulesCorr());
+    }
+
+    public void BossStatus(EnemyBossRule.bossStatus status)
+    {
+        if (this.currBoss != -1)
+        {
+            this.currBossStatus = status;
+        }
     }
 }
