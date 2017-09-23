@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceHell", "Assembly-CSharp.csproj", "{F5E6D2A9-4239-8569-FFFB-FF0F89D6CDBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceHell", "Assembly-CSharp-Editor.csproj", "{3D4B950B-7C5C-F5F7-82AF-BADC985AEC25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5E6D2A9-4239-8569-FFFB-FF0F89D6CDBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E6D2A9-4239-8569-FFFB-FF0F89D6CDBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E6D2A9-4239-8569-FFFB-FF0F89D6CDBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E6D2A9-4239-8569-FFFB-FF0F89D6CDBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D4B950B-7C5C-F5F7-82AF-BADC985AEC25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D4B950B-7C5C-F5F7-82AF-BADC985AEC25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D4B950B-7C5C-F5F7-82AF-BADC985AEC25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D4B950B-7C5C-F5F7-82AF-BADC985AEC25}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
