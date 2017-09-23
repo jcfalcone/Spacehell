@@ -36,6 +36,21 @@ public class EnemyMiniBoss1 : EnemyTemplate
     float gravityTime;
 
 
+    [Header("Sound")]
+    [SerializeField]
+    AudioClip chargingSound;
+
+    [SerializeField]
+    AudioClip deathSound;
+
+    [SerializeField]
+    AudioSource smallGunSound;
+
+    [SerializeField]
+    AudioSource gravityGunSound;
+
+    AudioSource bossAudio;
+
     [Header("Timer")]
     [SerializeField]
     [Range(0f, 10f)]
@@ -93,9 +108,10 @@ public class EnemyMiniBoss1 : EnemyTemplate
         transform.position = newPos;
         this.startDistance = Vector3.Distance(newPos, this.destinePos);
 
-        //this.StartAttack(MiniBossState.RotationLaser);
+        //this.StartAttack(MiniBossState.SmallAttack);
 
         this.currBossState = MiniBossState.StartAnimation;
+        //this.currBossState = MiniBossState.SmallAttack;
 
         this.totalWaitBetweenAttacks = this.waitBetweenAttacks;
 
@@ -113,6 +129,8 @@ public class EnemyMiniBoss1 : EnemyTemplate
         }
 
         this.currLife = this.totalLife;
+
+        this.bossAudio = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -147,6 +165,7 @@ public class EnemyMiniBoss1 : EnemyTemplate
             {
                 this.StartAttack(MiniBossState.RotationLaser);
                 this.startAttack = false;
+                this.CheckSound(this.currBossState);
             }
             else
             {
@@ -181,6 +200,7 @@ public class EnemyMiniBoss1 : EnemyTemplate
             if (startAttack)
             {
                 this.StartAttack(MiniBossState.SmallAttack);
+                this.CheckSound(this.currBossState);
                 this.startAttack = false;
             }
 
@@ -227,6 +247,7 @@ public class EnemyMiniBoss1 : EnemyTemplate
             {
                 this.StartAttack(MiniBossState.Gravity, gravityAttack);
                 this.StartAttack(MiniBossState.RotateSmallAttack, !gravityAttack);
+                this.CheckSound(this.currBossState);
                 this.startAttack = false;
 
                 this.gravityAttack = !this.gravityAttack;
@@ -252,7 +273,7 @@ public class EnemyMiniBoss1 : EnemyTemplate
 
             for (int count = 0; count < this.attackController.Length; count++)
             {
-                this.attackController[count].transform.position = Vector3.MoveTowards(this.attackController[count].transform.position, vectorZero, Time.deltaTime * 7);
+                this.attackController[count].transform.position = Vector3.MoveTowards(this.attackController[count].transform.position, vectorZero, Time.deltaTime * 25);
 
                 if (this.attackController[count].transform.position != vectorZero)
                 {
@@ -262,6 +283,7 @@ public class EnemyMiniBoss1 : EnemyTemplate
 
             if (allInPosition)
             {
+                UIMaster.instance.ShowFinal();
                 Instantiate(this.deathEffect, transform.position, Quaternion.identity);
                 Destroy(gameObject);
             }
@@ -342,7 +364,11 @@ public class EnemyMiniBoss1 : EnemyTemplate
         UIMaster.instance.showLifeBar(false);
         this.StartAttack(MiniBossState.Dead);
         this.currBossState = MiniBossState.Dead;
+
+        this.CheckSound(this.currBossState);
+        this.bossAudio.PlayOneShot(this.deathSound);
     }
+
 
     public void applyDamagePart(int partId, int damage)
     {
@@ -402,6 +428,34 @@ public class EnemyMiniBoss1 : EnemyTemplate
         for (int count = 0; count < this.attackController.Length; count++)
         {
             this.attackController[count].StopAttack();
+        }
+    }
+
+    void CheckSound(EnemyMiniBoss1.MiniBossState attackType)
+    {
+        if (attackType == MiniBossState.RotationLaser)
+        {
+            this.bossAudio.PlayOneShot(this.chargingSound);
+            this.smallGunSound.Stop();
+            this.gravityGunSound.Stop();
+        }
+        else if (attackType == MiniBossState.SmallAttack)
+        {
+            this.bossAudio.Stop();
+            this.smallGunSound.Play();
+            this.gravityGunSound.Stop();
+        }
+        else if (this.currBossState == MiniBossState.Gravity)
+        {
+            this.bossAudio.Stop();
+            this.smallGunSound.Stop();
+            this.gravityGunSound.Play();
+        }
+        else if (this.currBossState == MiniBossState.Dead)
+        {
+            this.bossAudio.Stop();
+            this.smallGunSound.Stop();
+            this.gravityGunSound.Stop();
         }
     }
 }
