@@ -7,6 +7,8 @@ TagManager:
   - Enemy
   - CollectableHealth
   - CollectableGun1
+  - EnemyBoss
+  - Supper Bullet
   layers:
   - Default
   - TransparentFX
@@ -20,8 +22,8 @@ TagManager:
   - PlayerBlack
   - EnemyRed
   - EnemyBlack
-  - 
-  - 
+  - BlockRed
+  - BlockBlack
   - 
   - 
   - 
